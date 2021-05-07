@@ -8,9 +8,13 @@ from PIL import Image, ImageFont, ImageDraw, ImageColor
 
 def make_ticket():
     image = Image.open('ticket_template.png')
-    font = ImageFont.truetype('Ubuntu.ttf', 30)
+    font = ImageFont.truetype('Ubuntu.ttf', 20)
     draw = ImageDraw.Draw(image)
-    draw.text((10, 10), 'Hello', font=font, fill=ImageColor.getrgb("black"))
+    text = ['ИВАНОВ', 'SKYSITY', 'SUNCITY', '08.12']
+    draw.text((45, 120), text[0], font=font, fill=ImageColor.getrgb("black"))
+    draw.text((45, 190), text[1], font=font, fill=ImageColor.getrgb("black"))
+    draw.text((45, 255), text[2], font=font, fill=ImageColor.getrgb("black"))
+    draw.text((285, 255), text[3], font=font, fill=ImageColor.getrgb("black"))
     return image.show()
 
 
