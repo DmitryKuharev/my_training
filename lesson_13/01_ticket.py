@@ -10,12 +10,10 @@ def make_ticket():
     image = Image.open('ticket_template.png')
     font = ImageFont.truetype('Ubuntu.ttf', 20)
     draw = ImageDraw.Draw(image)
-    text = ['ИВАНОВ', 'SKYSITY', 'SUNCITY', '08.12']
-    draw.text((45, 120), text[0], font=font, fill=ImageColor.getrgb("black"))
-    draw.text((45, 190), text[1], font=font, fill=ImageColor.getrgb("black"))
-    draw.text((45, 255), text[2], font=font, fill=ImageColor.getrgb("black"))
-    draw.text((285, 255), text[3], font=font, fill=ImageColor.getrgb("black"))
-    return image.show()
+    text = {'ИВАНОВ': (45, 120), 'SKYSITY': (45, 190), 'SUNCITY': (45, 255), '08.12': (285, 255)}
+    for key in text:
+        draw.text(text[key], key, font=font, fill=ImageColor.getrgb("black"))
+    return image.save('filled_ticket.png')
 
 
 ticket = make_ticket()
