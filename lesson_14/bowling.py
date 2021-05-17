@@ -1,6 +1,3 @@
-exmple = 'X4/344/'
-
-
 def get_score(game_result):
     score = 0
     score += game_result.count('X') * 20
@@ -10,8 +7,11 @@ def get_score(game_result):
         buffer = buffer[:index - 1] + buffer[index + 1:]
         score += 15
     for i in list(buffer):
-        score += int(i)
+        if i == '-':
+            continue
+        else:
+            score += int(i)
     return score
 
 
-print(get_score(game_result=exmple))
+print(get_score("X4/3--44/-"))
