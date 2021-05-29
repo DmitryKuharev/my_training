@@ -3,13 +3,11 @@ from lesson_14.bowling import BowlingScore
 
 
 class SimpleBowlingCount:
-    def __init__(self, game_result):
-        self.game_result = game_result
-        self.score = 0
+    score = 0
 
-    def get_score(self):
-        self.score += self.game_result.count('X') * 20
-        buffer = self.game_result.replace("X", '')
+    def get_score(self, game_result):
+        self.score += game_result.count('X') * 20
+        buffer = game_result.replace("X", '')
         while '/' in buffer:
             index = buffer.find('/')
             buffer = buffer[:index - 1] + buffer[index + 1:]
@@ -19,13 +17,26 @@ class SimpleBowlingCount:
                 continue
             else:
                 self.score += int(i)
+        return self.score
 
 
 class BowlingTest(unittest.TestCase):
-    def test_check(self):
-        result = BowlingScore()
-        result.score('X4/3--45/-')
-        tes = SimpleBowlingCount('X4/3--45/-')
-        tes.get_score()
-        self.assertEqual(result.total_score, tes.score)
+
+    def setUp(self):
+        self.result = BowlingScore()
+        self.tes = SimpleBowlingCount()
+
+    def test_simple(self):
+        self.result.score('X4/3--45/-')
+        self.assertEqual(self.result.total_score, self.tes.get_score('X4/3--45/-'))
+
+    def test_first(self):
+        self.result.score('XXX')
+        self.assertEqual(self.result.total_score, self.tes.get_score('XXX'))
+
+    def test_second(self):
+        self.result.score('37281955647346--82')
+        self.assertEqual(self.result.total_score, self.tes.get_score('37281955647346--82'))
+
+
 

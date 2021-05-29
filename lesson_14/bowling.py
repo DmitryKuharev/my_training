@@ -13,9 +13,6 @@ class State(metaclass=ABCMeta):
         pass
 
 
-# res = "X4/3--44/-"
-
-
 class SymbolState(State):
     def take_score(self, char):
         if char == 'X':
@@ -49,7 +46,6 @@ class DigitalState(State):
                     self.object_get_score.total_score += int(char)
 
 
-
 class BowlingScore:
     def __init__(self):
         self.symbol_state = SymbolState(self)
@@ -63,32 +59,54 @@ class BowlingScore:
             self._state.take_score(char)
 
 
+class WrongFirstSymbol(Exception):
+    def __str__(self):
+        return "Неверный ввод! Результат не может начинатся символом '/'"
+
+
+class InvalidNumberOfCharacters(Exception):
+    def __str__(self):
+        return "Неверный ввод! Неверное количество символов"
+
+
+class InvalidNumberOfScore(Exception):
+    pass
+
+
+class SimpleCheckResult:
+    def __init__(self, result):
+        self.result = result
+
+    def check_result(self):
+        if list(self.result)[0] == '/':
+            raise WrongFirstSymbol(f'Try again')
+        buffer = self.result.replace('X', '')
+        while '/' in buffer:
+            index = buffer.find('/')
+            buffer = buffer[:index - 1] + buffer[index + 1:]
+        if int(len(buffer)) % 2 != 0:
+            raise InvalidNumberOfCharacters(f'Try again')
+        if any(char in '.,:;!@#$%^&*()_+=| \\' for char in buffer):
+            raise InvalidNumberOfScore(f'Строка не может содержать спецсимволов')
+        list_buffer = list(buffer)
+        for char in list_buffer:
+            if char.isalpha():
+                raise InvalidNumberOfScore(f'{char} - данная буква не дожна быть в результате')
+        while list_buffer:
+            first_char, second_char = list_buffer.pop(0), list_buffer.pop(0)
+            if first_char.isdigit() and second_char.isdigit():
+                if int(first_char) + int(second_char) > 10:
+                    raise InvalidNumberOfScore(f'За два броска результат не может быть больше 10 очков, проверьте '
+                                               f'верно ли записана данная пара чисел: {first_char} и {second_char}')
+# '285-7/4/3/277-2---'
+
+
 def get_score(game_result):
-    score = 0
-    score += game_result.count('X') * 20
-    buffer = game_result.replace("X", '')
-    while '/' in buffer:
-        index = buffer.find('/')
-        buffer = buffer[:index - 1] + buffer[index + 1:]
-        score += 15
-    for i in list(buffer):
-        if i == '-':
-            continue
-        else:
-            score += int(i)
-    return score
-
-#     "X4/3--45/--",
-#     "X4/3--45/--"
-res = "285-7/4/3/277-2---"
-#"6---15--142/336/24X"
-# "3/15--8117--3628X1/"
-# "8-X3-4-41-10----7-X"
-# "285-7/4/3/277-2---"
-# print(get_score(res))
-
-result = BowlingScore()
-result.score(res)
-print(result.total_score)
-print(get_score(res))
-
+    try:
+        check = SimpleCheckResult(game_result)
+        check.check_result()
+        result = BowlingScore()
+        result.score(game_result)
+        return result.total_score
+    except Exception as ex:
+        print(ex)

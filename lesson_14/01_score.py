@@ -32,7 +32,7 @@
 
 import argparse
 from bowling import get_score
-
+# '285-7/4/3/277-2---'
 console = argparse.ArgumentParser(description='Определения количества очков игры в боулинг')
 console.add_argument('--result', type=str, default=None, help='Введите результат в формате : X4/344/')
 arg = console.parse_args()
