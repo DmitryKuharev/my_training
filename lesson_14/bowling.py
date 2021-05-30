@@ -79,13 +79,13 @@ class SimpleCheckResult:
 
     def check_result(self):
         if list(self.result)[0] == '/':
-            raise WrongFirstSymbol(f'Try again')
+            raise WrongFirstSymbol()
         buffer = self.result.replace('X', '')
         while '/' in buffer:
             index = buffer.find('/')
             buffer = buffer[:index - 1] + buffer[index + 1:]
         if int(len(buffer)) % 2 != 0:
-            raise InvalidNumberOfCharacters(f'Try again')
+            raise InvalidNumberOfCharacters()
         if any(char in '.,:;!@#$%^&*()_+=| \\' for char in buffer):
             raise InvalidNumberOfScore(f'Строка не может содержать спецсимволов')
         list_buffer = list(buffer)

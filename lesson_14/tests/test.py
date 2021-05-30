@@ -1,5 +1,6 @@
 import unittest
-from lesson_14.bowling import BowlingScore
+from lesson_14.bowling import BowlingScore, SimpleCheckResult, WrongFirstSymbol, InvalidNumberOfCharacters, \
+    InvalidNumberOfScore
 
 
 class SimpleBowlingCount:
@@ -39,4 +40,21 @@ class BowlingTest(unittest.TestCase):
         self.assertEqual(self.result.total_score, self.tes.get_score('37281955647346--82'))
 
 
+class CheckResultTest(unittest.TestCase):
 
+    def test_FirstSymbol(self):
+        with self.assertRaises(WrongFirstSymbol):
+            check = SimpleCheckResult("/123")
+            check.check_result()
+
+    def test_NumberOfCharacters(self):
+        with self.assertRaises(InvalidNumberOfCharacters):
+            check = SimpleCheckResult("12345")
+            check.check_result()
+
+    def test_NumberOfScore(self):
+        errors_list = ["123$", "123f", "123499"]
+        for error in errors_list:
+            with self.assertRaises(InvalidNumberOfScore):
+                check = SimpleCheckResult(error)
+                check.check_result()
