@@ -29,7 +29,3 @@ class BowlingReport:
                         out_file.write(f"winner is {', '.join(list(tour_winner))}\n")
                     else:
                         out_file.write(line)
-
-
-report = BowlingReport('tournament.txt', 'report_tournament.txt')
-report.act()
