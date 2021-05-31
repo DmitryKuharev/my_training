@@ -65,8 +65,7 @@ class WrongFirstSymbol(Exception):
 
 
 class InvalidNumberOfCharacters(Exception):
-    def __str__(self):
-        return "Неверный ввод! Неверное количество символов"
+    pass
 
 
 class InvalidNumberOfScore(Exception):
@@ -85,9 +84,9 @@ class SimpleCheckResult:
             index = buffer.find('/')
             buffer = buffer[:index - 1] + buffer[index + 1:]
         if int(len(buffer)) % 2 != 0:
-            raise InvalidNumberOfCharacters()
+            raise InvalidNumberOfCharacters(f"Неверный ввод! Неверное количество символов {self.result}")
         if any(char in '.,:;!@#$%^&*()_+=| \\' for char in buffer):
-            raise InvalidNumberOfScore(f'Строка не может содержать спецсимволов')
+            raise InvalidNumberOfScore(f'Строка {self.result} не может содержать спецсимволов')
         list_buffer = list(buffer)
         for char in list_buffer:
             if char.isalpha():
@@ -96,8 +95,9 @@ class SimpleCheckResult:
             first_char, second_char = list_buffer.pop(0), list_buffer.pop(0)
             if first_char.isdigit() and second_char.isdigit():
                 if int(first_char) + int(second_char) > 10:
-                    raise InvalidNumberOfScore(f'За два броска результат не может быть больше 10 очков, проверьте '
-                                               f'верно ли записана данная пара чисел: {first_char} и {second_char}')
+                    raise InvalidNumberOfScore(f'За два броска результат не может быть больше 10 очков, проверьте'
+                                               f' строку {self.result} верно ли записана данная пара чисел:'
+                                               f' {first_char} и {second_char}')
 # '285-7/4/3/277-2---'
 
 
@@ -110,3 +110,4 @@ def get_score(game_result):
         return result.total_score
     except Exception as ex:
         print(ex)
+

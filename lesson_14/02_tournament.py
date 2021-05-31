@@ -25,3 +25,12 @@
 #
 # Из текущего файла сделать консольный скрипт для формирования файла с результатами турнира.
 # Параметры скрипта: --input <файл протокола турнира> и --output <файл результатов турнира>
+
+import argparse
+from Bowling_report import BowlingReport
+console = argparse.ArgumentParser(description='Расчет результата протокола турнира матчей по боулингу')
+console.add_argument('--input', type=str, default=None, help='Имя файла с протоколом турнира')
+console.add_argument('--output', type=str, default=None, help='Имя файла с протоколом турнира')
+arg = console.parse_args()
+report = BowlingReport(arg.input, arg.output)
+report.act()
