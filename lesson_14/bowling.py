@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 STRIKE = 20
 SPARE = 15
+FOREIGN_STRIKE = 10
 
 
 class State(metaclass=ABCMeta):
@@ -46,17 +47,61 @@ class DigitalState(State):
                     self.object_get_score.total_score += int(char)
 
 
+class ForeignClient(State):
+    def take_score(self, result_for_calculation):
+        count = 0
+        list_result = list(result_for_calculation)
+        last_symbol = list_result[-1:]
+        penultimate_symbol = list_result[-2:-1]
+        while count <= (len(list_result) - 2):
+            for char in list_result:
+                if char == 'X':
+                    self.object_get_score.total_score += FOREIGN_STRIKE
+                    if list_result[count + 1] == 'X':
+                        self.object_get_score.total_score += FOREIGN_STRIKE
+                        if list_result[count + 2] == 'X':
+                            self.object_get_score.total_score += FOREIGN_STRIKE
+                    elif list_result[count + 1].isdigit() and list_result[count + 2] != '/':
+                        self.object_get_score.total_score += int(list_result[count + 1]) + int(list_result[count + 2])
+                    elif list_result[count + 2] == '/':
+                        self.object_get_score.total_score += FOREIGN_STRIKE
+                elif char == "/":
+                    if list_result[count + 1].isdigit():
+                        self.object_get_score.total_score += int(list_result[count + 1])
+                elif char.isdigit():
+                    if list_result[count + 1] == '/':
+                        self.object_get_score.total_score += FOREIGN_STRIKE
+                    elif list_result[count + 1].isdigit():
+                        self.object_get_score.total_score += int(char)
+                    count += 1
+        if penultimate_symbol[0] == 'X':
+            self.object_get_score.total_score += FOREIGN_STRIKE * 3
+        elif last_symbol[0] == '/':
+            self.object_get_score.total_score += FOREIGN_STRIKE
+        elif penultimate_symbol[0].isdigit() and last_symbol[0].isdigit():
+            self.object_get_score.total_score += int(last_symbol[0]) + int(penultimate_symbol[0])
+        elif penultimate_symbol[0].isdigit() and last_symbol[0] == '-':
+            self.object_get_score.total_score += int(penultimate_symbol[0])
+        elif last_symbol[0].isdigit() and penultimate_symbol[0] == '-':
+            self.object_get_score.total_score += int(last_symbol[0])
+
+
 class BowlingScore:
     def __init__(self):
         self.symbol_state = SymbolState(self)
         self.digital_state = DigitalState(self)
+        self.foreign_state = ForeignClient(self)
         self.total_score = 0
         self.buffer_symbol = ''
         self._state = self.symbol_state
+        self.version = True
 
     def score(self, result_for_calculation):
-        for char in list(result_for_calculation):
-            self._state.take_score(char)
+        if self.version:
+            for char in list(result_for_calculation):
+                self._state.take_score(char)
+        else:
+            self.foreign_state.take_score(result_for_calculation)
 
 
 class WrongFirstSymbol(Exception):
@@ -98,16 +143,18 @@ class SimpleCheckResult:
                     raise InvalidNumberOfScore(f'За два броска результат не может быть больше 10 очков, проверьте'
                                                f' строку {self.result} верно ли записана данная пара чисел:'
                                                f' {first_char} и {second_char}')
+
+
 # '285-7/4/3/277-2---'
 
 
-def get_score(game_result):
-    try:
-        check = SimpleCheckResult(game_result)
-        check.check_result()
-        result = BowlingScore()
-        result.score(game_result)
-        return result.total_score
-    except Exception as ex:
-        print(ex)
-
+def get_score(game_result, version=True):
+    # try:
+    check = SimpleCheckResult(game_result)
+    check.check_result()
+    result = BowlingScore()
+    result.version = version
+    result.score(game_result)
+    return result.total_score
+    # except Exception as ex:
+    #     print(ex)
