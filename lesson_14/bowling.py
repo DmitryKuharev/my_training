@@ -51,29 +51,36 @@ class ForeignClient(State):
     def take_score(self, result_for_calculation):
         count = 0
         list_result = list(result_for_calculation)
-        last_symbol = list_result[-1:]
-        penultimate_symbol = list_result[-2:-1]
-        while count <= (len(list_result) - 2):
-            for char in list_result:
-                if char == 'X':
+        last_symbol, penultimate_symbol = list_result[-1:], list_result[-2:-1]
+        for symbol in list_result[:-2]:
+            next_symbol, through_one_symbol = list_result[count + 1], list_result[count + 2]
+            if symbol == 'X':
+                self.object_get_score.total_score += FOREIGN_STRIKE
+                if next_symbol == 'X':
                     self.object_get_score.total_score += FOREIGN_STRIKE
-                    if list_result[count + 1] == 'X':
+                    if through_one_symbol == 'X':
                         self.object_get_score.total_score += FOREIGN_STRIKE
-                        if list_result[count + 2] == 'X':
-                            self.object_get_score.total_score += FOREIGN_STRIKE
-                    elif list_result[count + 1].isdigit() and list_result[count + 2] != '/':
-                        self.object_get_score.total_score += int(list_result[count + 1]) + int(list_result[count + 2])
-                    elif list_result[count + 2] == '/':
-                        self.object_get_score.total_score += FOREIGN_STRIKE
-                elif char == "/":
-                    if list_result[count + 1].isdigit():
-                        self.object_get_score.total_score += int(list_result[count + 1])
-                elif char.isdigit():
-                    if list_result[count + 1] == '/':
-                        self.object_get_score.total_score += FOREIGN_STRIKE
-                    elif list_result[count + 1].isdigit():
-                        self.object_get_score.total_score += int(char)
-                    count += 1
+                    elif through_one_symbol.isdigit():
+                        self.object_get_score.total_score += int(through_one_symbol)
+                elif through_one_symbol == '/':
+                    self.object_get_score.total_score += FOREIGN_STRIKE
+                elif next_symbol.isdigit() and through_one_symbol.isdigit():
+                    self.object_get_score.total_score += int(next_symbol) + int(through_one_symbol)
+                elif next_symbol.isdigit() and through_one_symbol == '-':
+                    self.object_get_score.total_score += int(next_symbol)
+                elif through_one_symbol.isdigit() and next_symbol == '-':
+                    self.object_get_score.total_score += int(through_one_symbol)
+            elif symbol == "/":
+                if next_symbol.isdigit():
+                    self.object_get_score.total_score += int(next_symbol)
+            elif symbol.isdigit():
+                if next_symbol == '/':
+                    self.object_get_score.total_score += FOREIGN_STRIKE
+                elif next_symbol.isdigit() or next_symbol == '-':
+                    self.object_get_score.total_score += int(symbol)
+                elif list_result[count - 1].isdigit() or list_result[count - 1] == '-':
+                    self.object_get_score.total_score += int(symbol)
+            count += 1
         if penultimate_symbol[0] == 'X':
             self.object_get_score.total_score += FOREIGN_STRIKE * 3
         elif last_symbol[0] == '/':
@@ -87,14 +94,14 @@ class ForeignClient(State):
 
 
 class BowlingScore:
-    def __init__(self):
+    def __init__(self, version=True):
         self.symbol_state = SymbolState(self)
         self.digital_state = DigitalState(self)
         self.foreign_state = ForeignClient(self)
         self.total_score = 0
         self.buffer_symbol = ''
         self._state = self.symbol_state
-        self.version = True
+        self.version = version
 
     def score(self, result_for_calculation):
         if self.version:
@@ -146,15 +153,18 @@ class SimpleCheckResult:
 
 
 # '285-7/4/3/277-2---'
+# 'X4/34'
+game_result = "X--XX347/21"
 
-
-def get_score(game_result, version=True):
+def get_score(game_result, calculation_method=True):
     # try:
     check = SimpleCheckResult(game_result)
     check.check_result()
-    result = BowlingScore()
-    result.version = version
+    result = BowlingScore(version=calculation_method)
     result.score(game_result)
     return result.total_score
     # except Exception as ex:
     #     print(ex)
+
+
+print(get_score(game_result, calculation_method=False))

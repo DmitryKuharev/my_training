@@ -1,4 +1,4 @@
-from bowling import get_score
+from bowling import get_score, WrongFirstSymbol, InvalidNumberOfCharacters, InvalidNumberOfScore
 
 
 class BowlingReport:
@@ -19,13 +19,20 @@ class BowlingReport:
             for line in in_file:
                 format_line = line.split('\t')
                 if len(format_line) == 2:
-                    person_result = get_score(format_line[1][:-1])
-                    if person_result:
-                        self.tour[format_line[0]] = person_result
-                    out_file.write(f"{format_line[0]}\t{format_line[1][:-1]:20}\t{str(person_result):<}\n")
+                    try:
+                        person_result = get_score(format_line[1][:-1])
+                        if person_result:
+                            self.tour[format_line[0]] = person_result
+                        out_file.write(f"{format_line[0]}\t{format_line[1][:-1]:20}\t{str(person_result):<}\n")
+                    except (WrongFirstSymbol, InvalidNumberOfCharacters, InvalidNumberOfScore) as ex:
+                        out_file.write(f"{format_line[0]}\t{format_line[1][:-1]:20}\t{ex}\n")
                 elif len(format_line) == 1:
                     if "winner" in line:
                         tour_winner = self.tour_winners()
                         out_file.write(f"winner is {', '.join(list(tour_winner))}\n")
                     else:
                         out_file.write(line)
+
+
+res = BowlingReport('tournament.txt', 'fake.txt')
+res.act()
