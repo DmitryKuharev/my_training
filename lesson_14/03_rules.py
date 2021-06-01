@@ -24,3 +24,16 @@
 # Необходимые изменения сделать во всех модулях. Тесты - дополнить.
 
 # "И да, старые правила должны остаться! для внутреннего рынка..." - уточнил менеджер напоследок.
+
+import argparse
+from Bowling_report import BowlingReport
+console = argparse.ArgumentParser(description='Расчет результата протокола турнира матчей по боулингу')
+console.add_argument('--input', '-i', type=str, default=None, help='Имя файла с протоколом турнира')
+console.add_argument('--output', '-o', type=str, default=None, help='Имя файла с результатами турнира')
+console.add_argument('--version', '-v', type=int, help='По умолчанию значение "1" - '
+                                                                'расчет идет по правилам внутреннего рынка.'
+                                                                'При значении "0" - расчет идет по правилам'
+                                                                ' внешнего рынка.')
+arg = console.parse_args()
+report = BowlingReport(arg.input, arg.output, arg.version)
+report.act()

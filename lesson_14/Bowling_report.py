@@ -2,9 +2,10 @@ from bowling import get_score, WrongFirstSymbol, InvalidNumberOfCharacters, Inva
 
 
 class BowlingReport:
-    def __init__(self, input_file, output_file):
+    def __init__(self, input_file, output_file, version):
         self.input_file = input_file
         self.output_file = output_file
+        self.version = version
         self.tour = {}
 
     def tour_winners(self):
@@ -20,7 +21,7 @@ class BowlingReport:
                 format_line = line.split('\t')
                 if len(format_line) == 2:
                     try:
-                        person_result = get_score(format_line[1][:-1])
+                        person_result = get_score(format_line[1][:-1], calculation_method=self.version)
                         if person_result:
                             self.tour[format_line[0]] = person_result
                         out_file.write(f"{format_line[0]}\t{format_line[1][:-1]:20}\t{str(person_result):<}\n")
@@ -32,7 +33,3 @@ class BowlingReport:
                         out_file.write(f"winner is {', '.join(list(tour_winner))}\n")
                     else:
                         out_file.write(line)
-
-
-res = BowlingReport('tournament.txt', 'fake.txt')
-res.act()

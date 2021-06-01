@@ -73,6 +73,8 @@ class ForeignClient(State):
             elif symbol == "/":
                 if next_symbol.isdigit():
                     self.object_get_score.total_score += int(next_symbol)
+                elif next_symbol == 'X':
+                    self.object_get_score.total_score += FOREIGN_STRIKE
             elif symbol.isdigit():
                 if next_symbol == '/':
                     self.object_get_score.total_score += FOREIGN_STRIKE
@@ -152,10 +154,6 @@ class SimpleCheckResult:
                                                f' {first_char} и {second_char}')
 
 
-# '285-7/4/3/277-2---'
-# 'X4/34'
-game_result = "X--XX347/21"
-
 def get_score(game_result, calculation_method=True):
     # try:
     check = SimpleCheckResult(game_result)
@@ -166,5 +164,3 @@ def get_score(game_result, calculation_method=True):
     # except Exception as ex:
     #     print(ex)
 
-
-print(get_score(game_result, calculation_method=False))

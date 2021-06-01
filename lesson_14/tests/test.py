@@ -40,6 +40,24 @@ class BowlingTest(unittest.TestCase):
         self.assertEqual(self.result.total_score, self.tes.get_score('37281955647346--82'))
 
 
+class BowlingForeignClientTest(unittest.TestCase):
+
+    def setUp(self):
+        self.result = BowlingScore(version=False)
+
+    def test_simple(self):
+        self.result.score("X4/34")
+        self.assertEqual(self.result.total_score, 40)
+
+    def test_first(self):
+        self.result.score("XXX347/21")
+        self.assertEqual(self.result.total_score, 92)
+
+    def test_second(self):
+        self.result.score('--7/X5-6/XXX4/')
+        self.assertEqual(self.result.total_score, 144)
+
+
 class CheckResultTest(unittest.TestCase):
 
     def test_FirstSymbol(self):
