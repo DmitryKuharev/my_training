@@ -44,11 +44,41 @@
 # 2.Перейти в другую локацию
 # 3.Выход
 
+import json
+import csv
+import decimal
+import time
+
 remaining_time = '1234567890.0987654321'
 # если изначально не писать число в виде строки - теряется точность!
 field_names = ['current_location', 'current_experience', 'current_date']
+experience = 0
 
-# TODO тут ваш код
+with open('rpg.json', 'r') as file:
+    json_data = json.load(file)
+    current_location = list(json_data.keys())[0]
+    print(f'Вы находитесь в {current_location}')
+    print(f'У вас {experience} опыта и осталось {remaining_time} секунд')
+    print('Прошло уже 0:00:00')
+    print('Внутри вы видите:')
+    for value in json_data[current_location]:
+        if isinstance(value, str):
+            print(f'-- Монстра {value}')
+        elif isinstance(value, dict):
+            for next_location in value.keys():
+                print(f'-- Вход в локацию: {next_location}')
+            print('Выберите действие:')
+            choice = int(input('1.Атаковать монстра\n2.Перейти в другую локацию\n3.Выход'))
+            if choice == 1:
+                pass
+            elif choice == 2:
+                pass
+            elif choice == 3:
+                pass
+            else:
+                print("Неверный ввод")
+
+
+
 
 # Учитывая время и опыт, не забывайте о точности вычислений!
-
