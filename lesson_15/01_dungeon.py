@@ -43,42 +43,57 @@
 # 1.Атаковать монстра
 # 2.Перейти в другую локацию
 # 3.Выход
+# если изначально не писать число в виде строки - теряется точность!
+# Учитывая время и опыт, не забывайте о точности вычислений!
 
 import json
 import csv
 import decimal
 import time
 
-remaining_time = '1234567890.0987654321'
-# если изначально не писать число в виде строки - теряется точность!
 field_names = ['current_location', 'current_experience', 'current_date']
-experience = 0
+json_file = 'rpg.json'
 
-with open('rpg.json', 'r') as file:
-    json_data = json.load(file)
-    current_location = list(json_data.keys())[0]
-    print(f'Вы находитесь в {current_location}')
-    print(f'У вас {experience} опыта и осталось {remaining_time} секунд')
-    print('Прошло уже 0:00:00')
-    print('Внутри вы видите:')
-    for value in json_data[current_location]:
-        if isinstance(value, str):
-            print(f'-- Монстра {value}')
-        elif isinstance(value, dict):
-            for next_location in value.keys():
-                print(f'-- Вход в локацию: {next_location}')
+
+def open_game_file(json_game_file):
+    with open(json_game_file, 'r') as file:
+        json_data_file = json.load(file)
+        start_time = time.time()
+        current_location = list(json_data_file.keys())[0]
+        while True:
+            monsters = {}
+            locations = {}
+            remaining_time = '1234567890.0987654321'
+            experience = 0
+            print(f'Вы находитесь в {current_location}')
+            print(f'У вас {experience} опыта и осталось {remaining_time} секунд')
+            print('Прошло уже 0:00:00')
+            print('Внутри вы видите:')
+            for value in json_data_file[current_location]:
+                if isinstance(value, str):
+                    print(f'-- Монстра {value}')
+                    monsters[json_data_file[current_location].index(value)] = value
+                elif isinstance(value, dict):
+                    for next_location in value.keys():
+                        print(f'-- Вход в локацию: {next_location}')
+                        locations[json_data_file[current_location].index(value)] = next_location
             print('Выберите действие:')
-            choice = int(input('1.Атаковать монстра\n2.Перейти в другую локацию\n3.Выход'))
+            choice = int(input('1.Атаковать монстра\n2.Перейти в другую локацию\n3.Выход\n'))
             if choice == 1:
                 pass
             elif choice == 2:
-                pass
+                print(f'Выбирете локацию:')
+                for location in locations:
+                    print(f'{location} - {locations[location]}')
+                location_choice = int(input())
+                json_data_file = json_data_file[current_location][location_choice]
+                current_location = list(json_data_file.keys())[0]
             elif choice == 3:
                 pass
             else:
                 print("Неверный ввод")
+            round_time = round(time.time() - start_time, 5)
 
 
-
-
-# Учитывая время и опыт, не забывайте о точности вычислений!
+if __name__ == "__main__":
+    open_game_file(json_file)
