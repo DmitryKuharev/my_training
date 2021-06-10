@@ -49,6 +49,7 @@
 import json
 import csv
 import decimal
+import re
 import time
 
 field_names = ['current_location', 'current_experience', 'current_date']
@@ -60,36 +61,56 @@ def open_game_file(json_game_file):
         json_data_file = json.load(file)
         start_time = time.time()
         current_location = list(json_data_file.keys())[0]
+        re_experience = r'exp(\d+)'
+        re_time = r'tm(\d+)'
+        remaining_time = decimal.Decimal('1234567890.0987654321')
         while True:
             monsters = {}
             locations = {}
-            remaining_time = '1234567890.0987654321'
-            experience = 0
+
+            player_experience = 0
+            monster_count = 1
+            location_count = 1
             print(f'Вы находитесь в {current_location}')
-            print(f'У вас {experience} опыта и осталось {remaining_time} секунд')
+            print(f'У вас {player_experience} опыта и осталось {remaining_time} секунд')
             print('Прошло уже 0:00:00')
             print('Внутри вы видите:')
             for value in json_data_file[current_location]:
                 if isinstance(value, str):
                     print(f'-- Монстра {value}')
-                    monsters[json_data_file[current_location].index(value)] = value
+                    monsters[monster_count] = [value, json_data_file[current_location].index(value)]
+                    monster_count += 1
                 elif isinstance(value, dict):
                     for next_location in value.keys():
                         print(f'-- Вход в локацию: {next_location}')
-                        locations[json_data_file[current_location].index(value)] = next_location
+                        locations[location_count] = [next_location, json_data_file[current_location].index(value)]
+                        location_count += 1
             print('Выберите действие:')
-            choice = int(input('1.Атаковать монстра\n2.Перейти в другую локацию\n3.Выход\n'))
+            if monsters:
+                choice = int(input('1.Атаковать монстра\n2.Перейти в другую локацию\n3.Выход\n'))
+            else:
+                choice = int(input('1.Перейти в другую локацию\n2.Выход\n')) + 1
             if choice == 1:
-                pass
+                print(f'Выбирете какого монстра атаковать:')
+                for monster in monsters:
+                    print(f'{monster} - {monsters[monster][0]}')
+                monster_choice = int(input())
+                dead_monster = monsters[monster_choice][0]
+                print(f'Вы уничтожили {dead_monster}')
+                json_data_file[current_location].remove(dead_monster)
+                player_experience += re.search(re_experience, dead_monster)[1]
+                remaining_time -= decimal.Decimal(re.search(re_time, dead_monster)[1])
             elif choice == 2:
                 print(f'Выбирете локацию:')
                 for location in locations:
-                    print(f'{location} - {locations[location]}')
+                    print(f'{location} - {locations[location][0]}')
                 location_choice = int(input())
-                json_data_file = json_data_file[current_location][location_choice]
+                json_data_file = json_data_file[current_location][locations[location_choice][1]]
                 current_location = list(json_data_file.keys())[0]
+                remaining_time -= decimal.Decimal(re.search(re_time, current_location)[1])
             elif choice == 3:
-                pass
+                print('Game over')
+                return False
             else:
                 print("Неверный ввод")
             round_time = round(time.time() - start_time, 5)
