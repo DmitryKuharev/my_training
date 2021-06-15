@@ -51,12 +51,10 @@ import csv
 import decimal
 import re
 import datetime
-
 from termcolor import cprint
 
-field_names = ['current_location', 'current_experience', 'current_date']
-json_file = 'rpg.json'
-rules = 'Подземелье было выкопано монстрами и они всё ещё скрываются где-то в его глубинах, планируя набеги на\n' \
+
+RULES = 'Подземелье было выкопано монстрами и они всё ещё скрываются где-то в его глубинах, планируя набеги на\n' \
         'близлежащие поселения. Само подземелье состоит из двух главных разветвлений и нескольких развилок,и лишь\n' \
         'один из путей приведёт вас к главному Боссу и позволит предотвратить набеги и спасти мирных жителей.\n' \
         'Правила игры! Необходимо исследовать это подземелье выбирая действие вводом чисел.\n' \
@@ -68,7 +66,8 @@ rules = 'Подземелье было выкопано монстрами и о
 
 class Dungeon:
     re_experience = r'exp(\d+)'
-    re_time = r'tm(\d+)'
+    re_time = r'tm([0-9]*[.,]?[0-9]*)'
+    field_names = ['current_location', 'current_experience', 'current_date']
 
     def __init__(self, json_file_game):
         self.json_file_game = json_file_game
@@ -83,19 +82,19 @@ class Dungeon:
         self.trigger = True
         self.current_location = ''
 
-    def write_journal_file(self):
-        with open('dungeon.csv', 'w', newline='', encoding='utf-8') as file:
-            write = csv.DictWriter(file, dialect="excel", fieldnames=field_names)
-            write.writeheader()
-            write.writerows(self.journal)
-
     def open_game_file(self):
-        cprint(rules, 'grey', attrs=['bold'])
+        cprint(RULES, 'grey', attrs=['bold'])
         with open(self.json_file_game, 'r') as file:
             self.json_data_file = json.load(file)
             return self.json_data_file
 
-    def user_input(self):
+    def write_journal_file(self):
+        with open('dungeon.csv', 'w', newline='', encoding='utf-8') as file:
+            write = csv.DictWriter(file, dialect="excel", fieldnames=self.field_names)
+            write.writeheader()
+            write.writerows(self.journal)
+
+    def check_user_input(self):
         choice = input()
         try:
             if int(choice) in range(1, self.expected_value + 1):
@@ -104,16 +103,16 @@ class Dungeon:
                 raise Exception
         except Exception:
             cprint('Некорректный ввод, повторите')
-            return self.user_input()
+            return self.check_user_input()
 
     def attack_monster(self):
         cprint('\nВыбирете какого монстра атаковать:', 'red')
         for monster in self.monsters:
             print(f'{monster} - {self.monsters[monster][0]}')
         self.expected_value = len(self.monsters)
-        monster_choice = self.user_input()
+        monster_choice = self.check_user_input()
         dead_monster = self.monsters[monster_choice][0]
-        print(f'Вы уничтожили {dead_monster}')
+        print(f'Вы уничтожили {dead_monster}\n')
         self.json_data_file[self.current_location].remove(dead_monster)
         self.player_experience += int(re.search(self.re_experience, dead_monster)[1])
         self.remaining_time -= decimal.Decimal(re.search(self.re_time, dead_monster)[1])
@@ -123,7 +122,7 @@ class Dungeon:
         for location in self.locations:
             print(f'{location} - {self.locations[location][0]}')
         self.expected_value = len(self.locations)
-        location_choice = self.user_input()
+        location_choice = self.check_user_input()
         self.json_data_file = self.json_data_file[self.current_location][self.locations[location_choice][1]]
         self.current_location = list(self.json_data_file.keys())[0]
         self.remaining_time -= decimal.Decimal(re.search(self.re_time, self.current_location)[1])
@@ -138,9 +137,9 @@ class Dungeon:
         cprint(f'Вы находитесь в {self.current_location}', 'green')
         cprint(f'У вас {self.player_experience} опыта и осталось {self.remaining_time} секунд', 'green')
         cprint(f'Прошло уже {end_time - self.start_time}', 'green')
-        self.journal.append({field_names[0]: self.current_location,
-                             field_names[1]: self.player_experience,
-                             field_names[2]: datetime.datetime.now()})
+        self.journal.append({self.field_names[0]: self.current_location,
+                             self.field_names[1]: self.player_experience,
+                             self.field_names[2]: datetime.datetime.now()})
         if self.json_data_file[self.current_location]:
             cprint('\nВнутри вы видите:', attrs=['underline'])
             for value in self.json_data_file[self.current_location]:
@@ -151,13 +150,14 @@ class Dungeon:
                 elif isinstance(value, dict):
                     for next_location in value.keys():
                         cprint(f'-- Вход в локацию: {next_location}', 'magenta')
-                        self.locations[location_count] = [next_location, self.json_data_file[self.current_location].index(value)]
+                        self.locations[location_count] = [next_location,
+                                                          self.json_data_file[self.current_location].index(value)]
                         location_count += 1
-        cprint('\nВыберите действие:', attrs=['underline'])
         if self.monsters and self.locations:
+            cprint('\nВыберите действие:', attrs=['underline'])
             cprint('1.Атаковать монстра\n2.Перейти в другую локацию\n3.Выход\nВаш выбор: ')
             self.expected_value = 3
-            choice = self.user_input()
+            choice = self.check_user_input()
             if choice == 1:
                 self.attack_monster()
             elif choice == 2:
@@ -165,39 +165,43 @@ class Dungeon:
             else:
                 self.trigger = False
         elif self.monsters:
+            cprint('\nВыберите действие:', attrs=['underline'])
             cprint('1.Атаковать монстра\n2.Выход\nВаш выбор: ')
             self.expected_value = 2
-            choice = self.user_input()
+            choice = self.check_user_input()
             if choice == 1:
                 self.attack_monster()
             else:
                 self.trigger = False
         elif self.locations:
+            cprint('\nВыберите действие:', attrs=['underline'])
             cprint('1.Перейти в другую локацию\n2.Выход\nВаш выбор: ')
             self.expected_value = 2
-            choice = self.user_input()
+            choice = self.check_user_input()
             if choice == 1:
                 self.move()
             else:
                 self.trigger = False
         else:
             if self.player_experience >= 280 and int(self.remaining_time) > 0:
-                cprint('You are winner!!!', 'red', attrs=['underline'])
+                cprint(f'Вы победили!!!\n Ваш опыт:{self.player_experience} и оставшееся время:{self.remaining_time}',
+                       'red', attrs=['underline'])
                 self.trigger = False
             else:
-                cprint('Это тупик, кек\nGame over', 'red')
+                cprint(f'Конец игры\nВаш опыт:{self.player_experience} и оставшееся время:{self.remaining_time}', 'red')
                 self.trigger = False
 
     def play_game(self):
+        if int(self.remaining_time) < 0:
+            self.trigger = False
+            cprint(f'Время вышло\nВаш опыт:{self.player_experience} и время:{self.remaining_time}', 'red')
         while self.trigger:
             self.game()
         self.write_journal_file()
 
 
-
-
-# if __name__ == "__main__":
-game = Dungeon(json_file)
-game.open_game_file()
-game.play_game()
+if __name__ == "__main__":
+    game = Dungeon('rpg.json')
+    game.open_game_file()
+    game.play_game()
 
