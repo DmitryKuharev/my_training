@@ -59,9 +59,9 @@ RULES = 'Подземелье было выкопано монстрами и о
         'один из путей приведёт вас к главному Боссу и позволит предотвратить набеги и спасти мирных жителей.\n' \
         'Правила игры! Необходимо исследовать это подземелье выбирая действие вводом чисел.\n' \
         'Движение осуществляется только в глубь подземелья - обратного пути нет!\n' \
-        'Как победить? Необхобимо набрать 280 очков опыта, и следить за тем, чтобы не закончился запас времени, т.к \n' \
-        'перемещаясь из одной локации в другую, пользователь теряет время, указанное в конце названия каждой локации\n' \
-        'Так же время расходуется при атаке монстров.\nУдачи!\n'
+        'Как победить? Необхобимо набрать 280 очков опыта, и следить за тем, чтобы не закончился запас времени,\n' \
+        ' т.к перемещаясь из одной локации в другую, пользователь теряет время, указанное в конце названия каждой\n'\
+        ' локации. Так же время расходуется при атаке монстров.\nУдачи!\n'
 
 
 class Dungeon:
@@ -108,11 +108,11 @@ class Dungeon:
     def attack_monster(self):
         cprint('\nВыбирете какого монстра атаковать:', 'red')
         for monster in self.monsters:
-            print(f'{monster} - {self.monsters[monster][0]}')
+            cprint(f'{monster} - {self.monsters[monster][0]}', 'yellow')
         self.expected_value = len(self.monsters)
         monster_choice = self.check_user_input()
         dead_monster = self.monsters[monster_choice][0]
-        print(f'Вы уничтожили {dead_monster}\n')
+        cprint(f'Вы уничтожили {dead_monster}\n', 'green')
         self.json_data_file[self.current_location].remove(dead_monster)
         self.player_experience += int(re.search(self.re_experience, dead_monster)[1])
         self.remaining_time -= decimal.Decimal(re.search(self.re_time, dead_monster)[1])
@@ -120,12 +120,17 @@ class Dungeon:
     def move(self):
         print(f'Выбирете локацию:')
         for location in self.locations:
-            print(f'{location} - {self.locations[location][0]}')
+            cprint(f'{location} - {self.locations[location][0]}', 'green')
         self.expected_value = len(self.locations)
         location_choice = self.check_user_input()
         self.json_data_file = self.json_data_file[self.current_location][self.locations[location_choice][1]]
         self.current_location = list(self.json_data_file.keys())[0]
         self.remaining_time -= decimal.Decimal(re.search(self.re_time, self.current_location)[1])
+
+    def append_journal_data(self):
+        self.journal.append({self.field_names[0]: self.current_location,
+                             self.field_names[1]: self.player_experience,
+                             self.field_names[2]: datetime.datetime.now()})
 
     def game(self):
         self.current_location = list(self.json_data_file.keys())[0]
@@ -134,13 +139,11 @@ class Dungeon:
         monster_count = 1
         location_count = 1
         end_time = datetime.datetime.now().replace(microsecond=0)
-        cprint(f'Вы находитесь в {self.current_location}', 'green')
-        cprint(f'У вас {self.player_experience} опыта и осталось {self.remaining_time} секунд', 'green')
-        cprint(f'Прошло уже {end_time - self.start_time}', 'green')
-        self.journal.append({self.field_names[0]: self.current_location,
-                             self.field_names[1]: self.player_experience,
-                             self.field_names[2]: datetime.datetime.now()})
+        self.append_journal_data()
         if self.json_data_file[self.current_location]:
+            cprint(f'Вы находитесь в {self.current_location}', 'green')
+            cprint(f'У вас {self.player_experience} опыта и осталось {self.remaining_time} секунд', 'green')
+            cprint(f'Прошло уже {end_time - self.start_time}', 'green')
             cprint('\nВнутри вы видите:', attrs=['underline'])
             for value in self.json_data_file[self.current_location]:
                 if isinstance(value, str):
@@ -155,7 +158,7 @@ class Dungeon:
                         location_count += 1
         if self.monsters and self.locations:
             cprint('\nВыберите действие:', attrs=['underline'])
-            cprint('1.Атаковать монстра\n2.Перейти в другую локацию\n3.Выход\nВаш выбор: ')
+            cprint('1.Атаковать монстра\n2.Перейти в другую локацию\n3.Выход\nВаш выбор: ', 'blue')
             self.expected_value = 3
             choice = self.check_user_input()
             if choice == 1:
@@ -166,7 +169,7 @@ class Dungeon:
                 self.trigger = False
         elif self.monsters:
             cprint('\nВыберите действие:', attrs=['underline'])
-            cprint('1.Атаковать монстра\n2.Выход\nВаш выбор: ')
+            cprint('1.Атаковать монстра\n2.Выход\nВаш выбор: ', 'blue')
             self.expected_value = 2
             choice = self.check_user_input()
             if choice == 1:
@@ -175,7 +178,7 @@ class Dungeon:
                 self.trigger = False
         elif self.locations:
             cprint('\nВыберите действие:', attrs=['underline'])
-            cprint('1.Перейти в другую локацию\n2.Выход\nВаш выбор: ')
+            cprint('1.Перейти в другую локацию\n2.Выход\nВаш выбор: ', 'blue')
             self.expected_value = 2
             choice = self.check_user_input()
             if choice == 1:
@@ -188,7 +191,8 @@ class Dungeon:
                        'red', attrs=['underline'])
                 self.trigger = False
             else:
-                cprint(f'Конец игры\nВаш опыт:{self.player_experience} и оставшееся время:{self.remaining_time}', 'red')
+                cprint(f'Вы проиграли\nВаш опыт:{self.player_experience} и оставшееся время:'
+                       f'{self.remaining_time}', 'red')
                 self.trigger = False
 
     def play_game(self):
@@ -204,4 +208,3 @@ if __name__ == "__main__":
     game = Dungeon('rpg.json')
     game.open_game_file()
     game.play_game()
-
