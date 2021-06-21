@@ -23,7 +23,7 @@ class WeatherMaker:
                                               {"class": "temp forecast-briefly__temp forecast-briefly__temp_night"})
         state_weather = html_doc.find_all('div', {'class': "forecast-briefly__condition"})
         for date, t_day, t_night, state in zip(list_day, temperature_days, temperature_nights, state_weather):
-            correct_date = datetime.strptime(date.get('datetime')[:10], '%Y-%m-%d').strftime('%d-%m-%Y')
+            correct_date = datetime.strptime(date.get('datetime')[:10], '%Y-%m-%d').strftime('%d.%m.%Y')
             self.weather_dict[correct_date] = {'Погода': state.text,
                                                     'Температура днем': re.search(self.re_temperature, t_day.text).group(),
                                                     'Температура ночью': re.search(self.re_temperature, t_night.text).group(),
