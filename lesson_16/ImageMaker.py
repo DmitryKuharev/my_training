@@ -23,7 +23,7 @@ class ImageMaker:
     def draw_postcard(self):
         image = cv2.imread(self.blank)
         height, width = image.shape[0], image.shape[1]
-        foo = 3
+        foo = 4
         if foo == 1:
             self.b_color, self.g_color, self.r_color = 0, 255, 255
             self.b_color_delta, self.g_color_delta, self.r_color_delta = round(255/height, 2), 0, 0
@@ -32,11 +32,15 @@ class ImageMaker:
             self.b_color_delta, self.g_color_delta, self.r_color_delta = 0, round(255/height, 2), round(255/height, 2)
         elif foo == 3:
             self.b_color, self.g_color, self.r_color = 255, 170, 85
-            self.b_color_delta, self.g_color_delta, self.r_color_delta = 0, round((255 - 170) / height, 2), 0
+            self.b_color_delta, self.g_color_delta, self.r_color_delta = 0, round((255 - 170) / height, 2), round((255 - 85) / height, 2),
         else:
-            self.b_color, self.g_color, self.r_color = 133, 133, 133
-            self.b_color_delta, self.g_color_delta, self.r_color_delta = round((255 - 133) / height, 2), round((255 - 133) / height, 2), round((255 - 133) / height, 2)
+            self.b_color, self.g_color, self.r_color = 120, 120, 120
+            self.b_color_delta, self.g_color_delta, self.r_color_delta = round((255 - 120) / height, 2), round((255 - 120) / height, 2), round((255 - 120) / height, 2)
         for x in range(0, width):
+            if foo == 3:
+                self.b_color, self.g_color, self.r_color = 255, 170, 85
+            elif foo == 4:
+                self.b_color, self.g_color, self.r_color = 120, 120, 120
             for y in range(0, height):
                 image[y, x] = [self.b_color, self.g_color, self.r_color]
                 self.b_color += self.b_color_delta
