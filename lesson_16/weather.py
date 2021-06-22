@@ -45,3 +45,43 @@
 # Приконнектится по полученному url-пути к базе данных
 # Инициализировать её через DatabaseProxy()
 # https://peewee.readthedocs.io/en/latest/peewee/database.html#dynamically-defining-a-database
+
+from WeatherMaker import WeatherMaker
+
+
+class Weather:
+    def __init__(self):
+        self.weather_data = None
+
+    def check_user_input(self):
+        choice = input()
+        try:
+            if int(choice) in range(1, 5):
+                return int(choice)
+            else:
+                raise Exception
+        except Exception:
+            print('Некорректный ввод, повторите')
+            return self.check_user_input()
+
+    def run(self):
+        weather = WeatherMaker()
+        self.weather_data = weather.get_weather()
+        print('1. Добавление прогнозов за диапазон дат в базу данных\n'
+              '2. Получение прогнозов за диапазон дат из базы\n'
+              '3. Создание открыток из полученных прогнозов\n'
+              '4. Выведение полученных прогнозов на консоль'
+              )
+        user_input = self.check_user_input()
+        if user_input == 1:
+            pass
+        elif user_input == 2:
+            pass
+        elif user_input == 3:
+            pass
+        elif user_input == 4:
+            pass
+
+if __name__ == "__main__":
+    w = Weather()
+    w.run()
