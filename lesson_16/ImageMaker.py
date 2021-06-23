@@ -98,7 +98,6 @@ class ImageMaker:
                 self.blank = key
         else:
             add_to_database.append(data["Погода"].lower())
-            print(add_to_database)
         image = cv2.imread(self.blank)
         cv2.putText(image, f'{data["Дата"]}', (210, 30), self.font, 1, self.color)
         cv2.putText(image, 'Погода', (50, 30), self.font, 1, self.color)

@@ -46,7 +46,9 @@
 # Инициализировать её через DatabaseProxy()
 # https://peewee.readthedocs.io/en/latest/peewee/database.html#dynamically-defining-a-database
 
+from datetime import datetime, timedelta
 from WeatherMaker import WeatherMaker
+from ImageMaker import ImageMaker
 
 
 class Weather:
@@ -64,6 +66,16 @@ class Weather:
             print('Некорректный ввод, повторите')
             return self.check_user_input()
 
+    def check_date(self):
+        date = input().split('-')
+        try:
+            for d in date:
+                datetime.strptime(d.replace(' ', ''), '%d.%m.%Y')
+                return date
+        except Exception:
+            print('Некорректный ввод, повторите')
+            return self.check_date()
+
     def run(self):
         weather = WeatherMaker()
         self.weather_data = weather.get_weather()
@@ -78,7 +90,18 @@ class Weather:
         elif user_input == 2:
             pass
         elif user_input == 3:
-            pass
+            print('Введиде дату или диапозон дат через дефиз(Например: 01.07.2021 или 01.07.2021-03.07.2021)')
+            date = self.check_date()
+            if len(date) == 1:
+                img = ImageMaker()
+                img.draw_postcard(self.weather_data[date[0]])
+            elif len(date) == 2:
+                start = datetime.strptime(date[0].replace(' ', ''), '%d.%m.%Y')
+                end = datetime.strptime(date[1].replace(' ', ''), '%d.%m.%Y')
+                date_list = [start + timedelta(days=x) for x in range(0, (end-start).days + 1)]
+                for day in date_list:
+                    img = ImageMaker()
+                    img.draw_postcard(self.weather_data[day.strftime("%d.%m.%Y")])
         elif user_input == 4:
             pass
 
