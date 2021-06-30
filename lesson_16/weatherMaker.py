@@ -30,10 +30,10 @@ class WeatherMaker:
         for date, t_day, t_night, state in zip(list_day, temperature_days, temperature_nights, state_weather):
             correct_date = datetime.strptime(date.get('datetime')[:10], '%Y-%m-%d').strftime('%d.%m.%Y')
             self.weather_dict[correct_date] = {
-                'Погода': state.text,
-                'Температура днем': re.search(self.re_temperature, t_day.text).group(),
-                'Температура ночью': re.search(self.re_temperature, t_night.text).group(),
-                'Дата': correct_date
+                'weather': state.text,
+                't_day': re.search(self.re_temperature, t_day.text).group(),
+                't_night': re.search(self.re_temperature, t_night.text).group(),
+                'date': correct_date
             }
         return self.weather_dict
 

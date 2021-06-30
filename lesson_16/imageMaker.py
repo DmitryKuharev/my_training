@@ -25,8 +25,8 @@
 import cv2
 import os
 
-test = {'Погода': 'Снег', 'Температура днем': '+26', 'Температура ночью': '+16',
-        'Дата': '01.07.2021'}
+test = {'weather': 'Облачно с прояснениями', 't_day': '+26', 't_night': '+16',
+        'date': '01.07.2021'}
 WEATHER = {'Sun.jpg': 'солнечно, ясно, малооблачно, облачно с прояснениями',
            'Rain.jpg': 'дождь, небольшой дождь, град, ливень, гроза',
            'Snow.jpg': 'снег, мокрый снег, снег с дождем, снегопад , обледенение, метель',
@@ -94,16 +94,16 @@ class ImageMaker:
         if False in check_img:
             self.make_mockup()
         for key, value in WEATHER.items():
-            if data["Погода"].lower() in value:
+            if data["weather"].lower() in value:
                 self.blank = key
         else:
-            add_to_database.append(data["Погода"].lower())
+            add_to_database.append(data["weather"].lower())
         image = cv2.imread(self.blank)
-        cv2.putText(image, f'{data["Дата"]}', (210, 30), self.font, 1, self.color)
+        cv2.putText(image, f'{data["date"]}', (210, 30), self.font, 1, self.color)
         cv2.putText(image, 'Погода', (50, 30), self.font, 1, self.color)
-        cv2.putText(image, f'Температура днем: {data["Температура днем"]}', (5, 90), self.font, 1, self.color)
-        cv2.putText(image, f'Температура ночью: {data["Температура ночью"]}', (5, 140), self.font, 1, self.color)
-        cv2.putText(image, f'{data["Погода"]}', (5, 190), self.font, 1, self.color)
+        cv2.putText(image, f'Температура днем: {data["t_day"]}', (5, 90), self.font, 1, self.color)
+        cv2.putText(image, f'Температура ночью: {data["t_night"]}', (5, 140), self.font, 1, self.color)
+        cv2.putText(image, f'{data["weather"]}', (5, 190), self.font, 1, self.color)
         cv2.putText(image, 'У природы нет плохой погоды!', (80, 245), self.font, 0.6, self.color)
         cv2.imshow('Test', image)
         cv2.waitKey(0)

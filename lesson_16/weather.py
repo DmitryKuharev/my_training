@@ -47,8 +47,9 @@
 # https://peewee.readthedocs.io/en/latest/peewee/database.html#dynamically-defining-a-database
 
 from datetime import datetime, timedelta
-from WeatherMaker import WeatherMaker
-from ImageMaker import ImageMaker
+from weatherMaker import WeatherMaker
+from imageMaker import ImageMaker
+from databaseUpdater import DatabaseUpdater
 
 
 class Weather:
@@ -86,9 +87,11 @@ class Weather:
               )
         user_input = self.check_user_input()
         if user_input == 1:
-            pass
+            bd = DatabaseUpdater()
+            bd.save_data(self.weather_data)
         elif user_input == 2:
-            pass
+            bd = DatabaseUpdater()
+            bd.get_data()
         elif user_input == 3:
             print('Введиде дату или диапозон дат через дефиз(Например: 01.07.2021 или 01.07.2021-03.07.2021)')
             date = self.check_date()
