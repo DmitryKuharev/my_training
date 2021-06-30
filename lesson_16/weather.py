@@ -77,6 +77,17 @@ class Weather:
             print('Некорректный ввод, повторите')
             return self.check_date()
 
+    def get_list_day(self):
+        print('Введиде дату или диапозон дат через дефиз(Например: 01.07.2021 или 01.07.2021-03.07.2021)')
+        date = self.check_date()
+        if len(date) == 1:
+            return date
+        else:
+            start = datetime.strptime(date[0].replace(' ', ''), '%d.%m.%Y')
+            end = datetime.strptime(date[1].replace(' ', ''), '%d.%m.%Y')
+            date_list = [(start + timedelta(days=x)).strftime("%d.%m.%Y") for x in range(0, (end - start).days + 1)]
+            return date_list
+
     def run(self):
         weather = WeatherMaker()
         self.weather_data = weather.get_weather()
@@ -91,17 +102,15 @@ class Weather:
             bd.save_data(self.weather_data)
         elif user_input == 2:
             bd = DatabaseUpdater()
-            bd.get_data()
+            date_list = self.get_list_day()
+            for day in date_list:
+                print(bd.get_data(day))
         elif user_input == 3:
-            print('Введиде дату или диапозон дат через дефиз(Например: 01.07.2021 или 01.07.2021-03.07.2021)')
-            date = self.check_date()
-            if len(date) == 1:
+            date_list = self.get_list_day()
+            if len(date_list) == 1:
                 img = ImageMaker()
-                img.draw_postcard(self.weather_data[date[0]])
-            elif len(date) == 2:
-                start = datetime.strptime(date[0].replace(' ', ''), '%d.%m.%Y')
-                end = datetime.strptime(date[1].replace(' ', ''), '%d.%m.%Y')
-                date_list = [start + timedelta(days=x) for x in range(0, (end-start).days + 1)]
+                img.draw_postcard(self.weather_data[date_list[0]])
+            elif len(date_list) == 2:
                 for day in date_list:
                     img = ImageMaker()
                     img.draw_postcard(self.weather_data[day.strftime("%d.%m.%Y")])

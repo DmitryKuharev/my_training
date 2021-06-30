@@ -21,6 +21,7 @@ class DatabaseUpdater:
             if not created:
                 self.data.update(data_to_add[weather_date]).where(DataWeather.id == weather.id).execute()
 
-    def get_data(self):
-        for data in self.data.select():
-            print(f'{data.date} - {data.weather} {data.t_day}')
+    def get_data(self, date: str):
+        for data in self.data.select().where(self.data.date == date):
+            return f'Погода {data.date} - {data.weather}\n'\
+                   f'Температура днем:{data.t_day}\nТемпература ночью:{data.t_night}'

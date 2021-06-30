@@ -2,6 +2,7 @@ import peewee
 
 database_proxy = peewee.Proxy()
 
+
 class DataWeather(peewee.Model):
     weather = peewee.CharField()
     date = peewee.CharField()
@@ -10,5 +11,3 @@ class DataWeather(peewee.Model):
 
     class Meta:
         database = database_proxy
-
-
