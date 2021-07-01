@@ -59,7 +59,7 @@ class Weather:
     def check_user_input(self):
         choice = input()
         try:
-            if int(choice) in range(1, 5):
+            if int(choice) in range(1, 6):
                 return int(choice)
             else:
                 raise Exception
@@ -71,8 +71,10 @@ class Weather:
         date = input().split('-')
         try:
             for d in date:
-                datetime.strptime(d.replace(' ', ''), '%d.%m.%Y')
-                return date
+                form_d = d.replace(' ', '')
+                datetime.strptime(form_d, '%d.%m.%Y')
+                check_date_in = self.weather_data[form_d]
+            return date
         except Exception:
             print('Некорректный ввод, повторите')
             return self.check_date()
@@ -88,34 +90,51 @@ class Weather:
             date_list = [(start + timedelta(days=x)).strftime("%d.%m.%Y") for x in range(0, (end - start).days + 1)]
             return date_list
 
+    def print_weather(self):
+        day_printed = 0
+        for weather in self.weather_data.values():
+            if day_printed < 8:
+                day_printed += 1
+                print(f'Погода {weather["date"]} - {weather["weather"]}\n'
+                      f'Температура днем:{weather["t_day"]}\nТемпература ночью:{weather["t_night"]}')
+
     def run(self):
         weather = WeatherMaker()
         self.weather_data = weather.get_weather()
-        print('1. Добавление прогнозов за диапазон дат в базу данных\n'
-              '2. Получение прогнозов за диапазон дат из базы\n'
-              '3. Создание открыток из полученных прогнозов\n'
-              '4. Выведение полученных прогнозов на консоль'
-              )
-        user_input = self.check_user_input()
-        if user_input == 1:
-            bd = DatabaseUpdater()
-            bd.save_data(self.weather_data)
-        elif user_input == 2:
-            bd = DatabaseUpdater()
-            date_list = self.get_list_day()
-            for day in date_list:
-                print(bd.get_data(day))
-        elif user_input == 3:
-            date_list = self.get_list_day()
-            if len(date_list) == 1:
-                img = ImageMaker()
-                img.draw_postcard(self.weather_data[date_list[0]])
-            elif len(date_list) == 2:
+        print(self.weather_data)
+        while True:
+            print('1. Добавление прогнозов за диапазон дат в базу данных\n'
+                  '2. Получение прогнозов за диапазон дат из базы\n'
+                  '3. Создание открыток из полученных прогнозов\n'
+                  '4. Выведение полученных прогнозов на консоль\n'
+                  '5. Выход'
+                  )
+            user_input = self.check_user_input()
+            if user_input == 1:
+                bd = DatabaseUpdater()
+                bd.save_data(self.weather_data)
+                print("Данные добавлены в базу данных")
+            elif user_input == 2:
+                bd = DatabaseUpdater()
+                date_list = self.get_list_day()
+                print("Данные из базы данных")
                 for day in date_list:
+                    print(bd.get_data(day))
+            elif user_input == 3:
+                date_list = self.get_list_day()
+                if len(date_list) == 1:
                     img = ImageMaker()
-                    img.draw_postcard(self.weather_data[day.strftime("%d.%m.%Y")])
-        elif user_input == 4:
-            pass
+                    img.draw_postcard(self.weather_data[date_list[0]])
+                elif len(date_list) > 2:
+                    for day in date_list:
+                        img = ImageMaker()
+                        img.draw_postcard(self.weather_data[day])
+            elif user_input == 4:
+                self.print_weather()
+            elif user_input == 5:
+                print("Спасибо, что использовали данный модуль")
+                return False
+
 
 if __name__ == "__main__":
     w = Weather()

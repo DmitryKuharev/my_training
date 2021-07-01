@@ -1,7 +1,3 @@
-# Создать модуль-движок с классом WeatherMaker, необходимым для получения и формирования предсказаний.
-# В нём должен быть метод, получающий прогноз с выбранного вами сайта (парсинг + re) за некоторый диапазон дат,
-# а затем, получив данные, сформировать их в словарь {погода: Облачная, температура: 10, дата:datetime...}
-
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -36,9 +32,3 @@ class WeatherMaker:
                 'date': correct_date
             }
         return self.weather_dict
-
-
-
-if __name__ == "__main__":
-    weather = WeatherMaker()
-    print(weather.get_weather())
