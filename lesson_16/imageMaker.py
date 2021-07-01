@@ -6,7 +6,6 @@ WEATHER = {'Sun.jpg': 'солнечно, ясно, малооблачно, об�
            'Snow.jpg': 'снег, мокрый снег, снег с дождем, снегопад , обледенение, метель',
            'Cloud.jpg': 'облачно, пасмурно, туман'
            }
-add_to_database = []
 
 
 class ImageMaker:
@@ -71,7 +70,7 @@ class ImageMaker:
             if data["weather"].lower() in value:
                 self.blank = key
         else:
-            add_to_database.append(data["weather"].lower())
+            print(f'Данную погоду "{data["weather"].lower()}" необходимо добавить в нужный раздел переменной WEATHER ')
         image = cv2.imread(self.blank)
         cv2.putText(image, f'{data["date"]}', (210, 30), self.font, 1, self.color)
         cv2.putText(image, 'Погода', (50, 30), self.font, 1, self.color)
