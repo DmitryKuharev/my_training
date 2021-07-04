@@ -101,7 +101,6 @@ class Weather:
     def run(self):
         weather = WeatherMaker()
         self.weather_data = weather.get_weather()
-        print(self.weather_data)
         while True:
             print('1. Добавление прогнозов за диапазон дат в базу данных\n'
                   '2. Получение прогнозов за диапазон дат из базы\n'
